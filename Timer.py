@@ -12,6 +12,7 @@ pygame.mixer.init()
 
 
 def play_sound():
+    pygame.mixer.music.set_volume(0.1)
     pygame.mixer.music.load("tada.mp3")
     pygame.mixer.music.play()
     TimerCount['foreground'] = '#D5D5D5'
