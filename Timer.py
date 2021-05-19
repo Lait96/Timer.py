@@ -3,6 +3,7 @@ import pygame
 
 InTimer = True
 MusicOneTime = True
+VolumeLevel = 100
 
 file = open('Time.txt', 'r')
 TimerTime = int(file.read())
@@ -92,15 +93,23 @@ def setting():
             file.write(str(TimerTime))
             file.close()
 
+
     def alphaOff():
         window.attributes('-alpha', 1)
 
     def alphaOn():
         window.attributes('-alpha', 0.75)
 
+    def get_val_motion(event):
+        s1 = VolumeLevelScale.get()
+        print("Motion Number", str(s1))
 
     settingWindow = Toplevel(window)
     settingWindow.geometry('200x100')
+
+    VolumeLevelScale = Scale(settingWindow, orient=HORIZONTAL, length=100, from_=0, to=100, tickinterval=50, resolution=1)
+    VolumeLevelScale.bind("<B1-Motion>", get_val_motion)
+    VolumeLevelScale.grid()
 
     MinuteLabel = Label(settingWindow, font="Colatemta 8")
     MinuteLabel.grid()
@@ -124,7 +133,6 @@ def setting():
 
     AlphaOffButton = Button(settingWindow, text='Убрать прозрачность', command=alphaOff)
     AlphaOffButton.grid()
-
 
 window = Tk()
 window.title("Таймер")
