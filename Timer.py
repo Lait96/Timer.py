@@ -1,25 +1,28 @@
 from tkinter import *
+from functools import partial
 import pygame
 
 InTimer = True
 MusicOneTime = True
 SettingList = []
 
+
 file = open('Time.txt', 'r')
 for line in file:
     SettingList.append(int(line))
 file.close()
+for _ in range(2):
+    SettingList.append(True)
 pygame.mixer.init()
 
 
-def finish():
+def finish(SettingList):
     TimerCount['foreground'] = '#D5D5D5'
     TimerCount.place(x=35, y=-3)
     TimerCount['text'] = str("ʕ ᵔᴥᵔ ʔ")
-    play_sound()
+    play_sound(SettingList)
 
-def play_sound():
-    global SettingList
+def play_sound(SettingList):
     if SettingList[1] == 100:
         VolumeLevelInDef = 1
     else:
@@ -28,45 +31,40 @@ def play_sound():
     pygame.mixer.music.load("tada.mp3")
     pygame.mixer.music.play()
 
-def stop():
-    global InTimer
-    InTimer = False
+def stop(SettingList):
+    SettingList[2] = False
     TimerCount['foreground'] = '#D5D5D5'
     TimerCount.place(x=17, y=-3)
     TimerCount['text'] = str("¯\_(ツ)_/¯")
+stopDef = partial(stop, SettingList)
 
-def start():
-    global InTimer
-    global MusicOneTime
-    global SettingList
-    InTimer = True
-    MusicOneTime = True
+def start(SettingList):
+    SettingList[2] = True
+    SettingList[3] = True
     TimerCount['foreground'] = '#D5D5D5'
     TimerCount['text'] = str("")
     TimerCount.place(x=40, y=-3)
-    Timer(SettingList[0])
+    Timer(SettingList[0], SettingList)
+StartDef = partial(start, SettingList)
 
-
-def Timer(TimerTime):
-    global InTimer
-    global MusicOneTime
-    if not InTimer:
+def Timer(TimerCounter, SettingList=SettingList):
+    if not SettingList[2]:
         return None
-    minute = TimerTime // 60
-    second = TimerTime % 60
+    minute = TimerCounter // 60
+    second = TimerCounter % 60
     if second < 10:
         second = '0' + str(second)
     TimerCount['text'] = str('0' + str(minute) + ':' + str(second))
-    if TimerTime != 0 and InTimer:
-        if 10 < TimerTime <= 30:
+    if TimerCounter != 0 and SettingList[2]:
+        if 10 < TimerCounter <= 30:
             TimerCount['foreground'] = '#FF9218'
-        if TimerTime <= 10:
+        if TimerCounter <= 10:
             TimerCount['foreground'] = '#ff3318'
-        TimerTime -= 1
-        window.after(1000, Timer, TimerTime)
-    if TimerTime == 0 and MusicOneTime:
-        MusicOneTime = False
-        window.after(1000, finish)
+        TimerCounter -= 1
+        window.after(1000, Timer, TimerCounter)
+    if TimerCounter == 0 and SettingList[3]:
+        SettingList[3] = False
+        window.after(1000, finish, SettingList)
 
 
 def drag(event):
@@ -81,9 +79,9 @@ def click(event):
     window.offsety = event.y
 
 
-def setting():
+def setting(*args):
     global SettingList
-    def TimeForTimer():
+    def TimeForTimer(*args):
         global SettingList
 
         TimeM = str(MinuteEntry.get())
@@ -102,12 +100,12 @@ def setting():
     def TransparencyOn():
         window.attributes('-alpha', 0.75)
 
-    def get_val_motion(event):
+    def get_val_motion(event, *args):
         global SettingList
         SettingList[1] = VolumeLevelScale.get()
 
 
-    def on_closing():
+    def on_closing(*args):
         global SettingList
         file = open('Time.txt', 'w')
         file.write(str(SettingList[0]) + '\n' + str(SettingList[1]) + '\n')
@@ -162,11 +160,11 @@ window['bg'] = "gray22"
 TimerCount = Label(font="Colatemta 19")
 TimerCount['bg'] = "gray22"
 
-ButtonStart = Button(window, text="Старт", command=start, padx="10", pady="0")
+ButtonStart = Button(window, text="Старт", command=StartDef, padx="10", pady="0")
 ButtonStart.place(x=7, y=30)
 ButtonStart['bg'] = "gray16"
 
-ButtonStop = Button(window, text="Стоп", command=stop, padx="12", pady="0")
+ButtonStop = Button(window, text="Стоп", command=stopDef, padx="12", pady="0")
 ButtonStop.place(x=82, y=30)
 ButtonStop['bg'] = "gray16"
 
