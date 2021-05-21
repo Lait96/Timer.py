@@ -2,11 +2,8 @@ from tkinter import *
 from functools import partial
 import pygame
 
-InTimer = True
-MusicOneTime = True
+
 SettingList = []
-
-
 file = open('Time.txt', 'r')
 for line in file:
     SettingList.append(int(line))
@@ -79,11 +76,8 @@ def click(event):
     window.offsety = event.y
 
 
-def setting(*args):
-    global SettingList
-    def TimeForTimer(*args):
-        global SettingList
-
+def setting(SettingList):
+    def TimeForTimer(SettingList=SettingList):
         TimeM = str(MinuteEntry.get())
         TimeS = str(SecondEntry.get())
 
@@ -100,18 +94,15 @@ def setting(*args):
     def TransparencyOn():
         window.attributes('-alpha', 0.75)
 
-    def get_val_motion(event, *args):
-        global SettingList
+    def get_val_motion(event, SettingList=SettingList):
         SettingList[1] = VolumeLevelScale.get()
 
-
-    def on_closing(*args):
-        global SettingList
+    def on_closing(settingDef):
         file = open('Time.txt', 'w')
         file.write(str(SettingList[0]) + '\n' + str(SettingList[1]) + '\n')
         file.close()
         settingWindow.destroy()
-
+    on_closingDef = partial(on_closing, settingDef)
 
     settingWindow = Toplevel(window)
     settingWindow.geometry('200x100')
@@ -149,8 +140,8 @@ def setting(*args):
     TransparencyOffButton = Button(settingWindow, text='Убрать прозрачность', command=TransparencyOff)
     TransparencyOffButton.grid()
 
-    settingWindow.protocol("WM_DELETE_WINDOW", on_closing)
-
+    settingWindow.protocol("WM_DELETE_WINDOW", on_closingDef)
+settingDef = partial(setting, SettingList)
 
 window = Tk()
 window.title("Таймер")
@@ -168,7 +159,7 @@ ButtonStop = Button(window, text="Стоп", command=stopDef, padx="12", pady="0
 ButtonStop.place(x=82, y=30)
 ButtonStop['bg'] = "gray16"
 
-ButtonSetting = Button(window, text='Настройки', command=setting)
+ButtonSetting = Button(window, text='Настройки', command=settingDef)
 ButtonSetting.place(x=38.5, y=57.5)
 ButtonSetting['bg'] = "gray16"
 
