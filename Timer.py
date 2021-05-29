@@ -1,6 +1,6 @@
 from tkinter import *
 from functools import partial
-import pygame
+from pygame import mixer
 
 
 SettingList = []
@@ -10,7 +10,7 @@ for line in file:
 file.close()
 for _ in range(2):
     SettingList.append(True)
-pygame.mixer.init()
+mixer.init()
 
 
 def finish(SettingList):
@@ -24,9 +24,9 @@ def play_sound(SettingList):
         VolumeLevelInDef = 1
     else:
         VolumeLevelInDef = float(str("0" + "." + str(SettingList[1])))
-    pygame.mixer.music.set_volume(VolumeLevelInDef)
-    pygame.mixer.music.load("tada.mp3")
-    pygame.mixer.music.play()
+    mixer.music.set_volume(VolumeLevelInDef)
+    mixer.music.load("tada.mp3")
+    mixer.music.play()
 
 def stop(SettingList):
     SettingList[2] = False
